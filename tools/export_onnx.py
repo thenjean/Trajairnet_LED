@@ -1,36 +1,13 @@
 import argparse
 import os
+import sys
+from pathlib import Path
 from types import SimpleNamespace
 
-import torch
-
-from model.trajairnet import TrajAirNet
-
-
-class OnnxInferenceWrapper(torch.nn.Module):
-    """Wraps TrajAirNet.inference into a 2-input ONNX-exportable interface."""
-
-    def __init__(self, model: TrajAirNet):
-        super().__init__()
-        self.model = model
-
-    def forward(self, obs_traj, route_priors):
-        # Build placeholder args to satisfy the original inference signature.
-        bsz, agents, _, _ = obs_traj.shape
-        pred_placeholder = torch.zeros(
-            (bsz, agents, 3, 12), dtype=obs_traj.dtype, device=obs_traj.device
-        )
-        adj_placeholder = torch.ones((agents, agents), dtype=obs_traj.dtype, device=obs_traj.device)
-        context_placeholder = torch.zeros(
-            (bsz, agents, 2, 11), dtype=obs_traj.dtype, device=obs_traj.device
-        )
-        return self.model.inference(
-            obs_traj,
-            pred_placeholder,
-            adj_placeholder,
-            context_placeholder,
-            route_priors=route_priors,
-        )
+# Ensure repo root is importable when script is launched outside project root.
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 
 def build_args(obs=11, preds=120):
@@ -72,6 +49,34 @@ def main():
     parser.add_argument("--agents", type=int, default=7)
     parser.add_argument("--opset", type=int, default=17)
     args = parser.parse_args()
+
+    import torch
+    from model.trajairnet import TrajAirNet
+
+    class OnnxInferenceWrapper(torch.nn.Module):
+        """Wraps TrajAirNet.inference into a 2-input ONNX-exportable interface."""
+
+        def __init__(self, model: TrajAirNet):
+            super().__init__()
+            self.model = model
+
+        def forward(self, obs_traj, route_priors):
+            # Build placeholder args to satisfy the original inference signature.
+            bsz, agents, _, _ = obs_traj.shape
+            pred_placeholder = torch.zeros(
+                (bsz, agents, 3, 12), dtype=obs_traj.dtype, device=obs_traj.device
+            )
+            adj_placeholder = torch.ones((agents, agents), dtype=obs_traj.dtype, device=obs_traj.device)
+            context_placeholder = torch.zeros(
+                (bsz, agents, 2, 11), dtype=obs_traj.dtype, device=obs_traj.device
+            )
+            return self.model.inference(
+                obs_traj,
+                pred_placeholder,
+                adj_placeholder,
+                context_placeholder,
+                route_priors=route_priors,
+            )
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model_args = build_args(obs=args.obs, preds=args.preds)
