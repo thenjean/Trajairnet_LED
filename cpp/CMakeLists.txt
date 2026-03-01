@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.14)
 project(trajairnet_onnx_cpp)
 
-set(CMAKE_CXX_STANDARD 17)
+# Keep the sample compatible with C++11 toolchains.
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Pass -DONNXRUNTIME_DIR=/path/to/onnxruntime when configuring.
