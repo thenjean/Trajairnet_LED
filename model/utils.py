@@ -1248,13 +1248,29 @@ def acc_to_abs(acc, obs, delta=1):
 
 # [修改] seq_collate_with_padding 支持第6个元素 (route_priors)
 def seq_collate_with_padding(data):
-    # 检查 data[0] 是否包含 prior (len > 5)
-    has_prior = len(data[0]) > 5 and data[0][5].nelement() > 0
+    if len(data) == 0:
+        raise ValueError("Empty batch in seq_collate_with_padding")
 
-    if has_prior:
-        (obs_seq_list, pred_seq_list, obs_seq_rel_list, pred_seq_rel_list, context_list, prior_list) = zip(*data)
-    else:
-        (obs_seq_list, pred_seq_list, obs_seq_rel_list, pred_seq_rel_list, context_list) = zip(*data[:5])
+    def _has_valid_prior(sample):
+        return (
+            len(sample) > 5
+            and sample[5] is not None
+            and torch.is_tensor(sample[5])
+            and sample[5].nelement() > 0
+        )
+
+    # 仅当 batch 内每个样本都带有效 prior 时才启用，避免混合 batch 导致堆叠失败。
+    has_prior = all(_has_valid_prior(sample) for sample in data)
+
+    # data 的每一项可能包含第 6 个占位元素（None 或空 tensor），
+    # 不能使用 zip(*data[:5])，否则会按样本数切片导致解包错误。
+    data_tup = list(zip(*data))
+    obs_seq_list = data_tup[0]
+    pred_seq_list = data_tup[1]
+    obs_seq_rel_list = data_tup[2]
+    pred_seq_rel_list = data_tup[3]
+    context_list = data_tup[4]
+    prior_list = data_tup[5] if len(data_tup) > 5 else None
 
     padding_num = 7
 

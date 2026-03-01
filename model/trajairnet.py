@@ -179,7 +179,7 @@
 #         fut_traj = fut_traj.permute(0, 2, 1)
 #         past_traj = torch.reshape(x, (batch_size * agent_num, x.shape[2], x.shape[3]))
 #         past_traj = past_traj.permute(0, 2, 1)
-#         traj_mask = torch.zeros(batch_size * agent_num, batch_size * agent_num).cuda()
+#         traj_mask = torch.zeros(batch_size * agent_num, batch_size * agent_num).to(x.device)
 #         for i in range(batch_size):
 #             traj_mask[i * agent_num:(i + 1) * agent_num, i * agent_num:(i + 1) * agent_num] = 1.
 #
@@ -228,7 +228,7 @@
 #
 #         past_traj = torch.reshape(x, (batch_size * agent_num, x.shape[2], x.shape[3]))
 #         past_traj = past_traj.permute(0, 2, 1)
-#         traj_mask = torch.zeros(batch_size * agent_num, batch_size * agent_num).cuda()
+#         traj_mask = torch.zeros(batch_size * agent_num, batch_size * agent_num).to(x.device)
 #         for i in range(batch_size):
 #             traj_mask[i * agent_num:(i + 1) * agent_num, i * agent_num:(i + 1) * agent_num] = 1.
 #
@@ -387,12 +387,13 @@ class TrajAirNet(nn.Module):
         self.mlp = FutureDistributionAggregator(future_steps=5, h=12, w=12, hidden_dim=256)
 
         # LED Modules
-        self.model = CoreDenoisingModel().cuda()
-        self.model_initializer = InitializationModel(t_h=args.obs, d_h=3, t_f=n_classes, d_f=3, k_pred=20).cuda()
+        init_device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.model = CoreDenoisingModel().to(init_device)
+        self.model_initializer = InitializationModel(t_h=args.obs, d_h=3, t_f=n_classes, d_f=3, k_pred=20).to(init_device)
 
         self.betas = self.make_beta_schedule(
             schedule='linear', n_timesteps=100,
-            start=1.e-4, end=5.e-2).cuda()
+            start=1.e-4, end=5.e-2).to(init_device)
 
         self.alphas = 1 - self.betas
         self.alphas_prod = torch.cumprod(self.alphas, 0)
@@ -475,7 +476,7 @@ class TrajAirNet(nn.Module):
         fut_traj = fut_traj.permute(0, 2, 1)
         past_traj = torch.reshape(x, (batch_size * agent_num, x.shape[2], x.shape[3]))
         past_traj = past_traj.permute(0, 2, 1)
-        traj_mask = torch.zeros(batch_size * agent_num, batch_size * agent_num).cuda()
+        traj_mask = torch.zeros(batch_size * agent_num, batch_size * agent_num).to(x.device)
         for i in range(batch_size):
             traj_mask[i * agent_num:(i + 1) * agent_num, i * agent_num:(i + 1) * agent_num] = 1.
 
@@ -528,7 +529,7 @@ class TrajAirNet(nn.Module):
 
         past_traj = torch.reshape(x, (batch_size * agent_num, x.shape[2], x.shape[3]))
         past_traj = past_traj.permute(0, 2, 1)
-        traj_mask = torch.zeros(batch_size * agent_num, batch_size * agent_num).cuda()
+        traj_mask = torch.zeros(batch_size * agent_num, batch_size * agent_num).to(x.device)
         for i in range(batch_size):
             traj_mask[i * agent_num:(i + 1) * agent_num, i * agent_num:(i + 1) * agent_num] = 1.
 

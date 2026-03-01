@@ -116,7 +116,7 @@
 #             loss_dc += loss_uncertainty.item()
 #
 #             loss.backward()
-#             torch.nn.utils.clip_grad_norm_(model.model_initializer.parameters(), 1.)
+#             torch.nn.utils.clip_grad_norm_(model.model_initializer.parameters(), 1., error_if_nonfinite=False)
 #             optimizer.step()
 #             count += 1
 #             tot_batch_count += 1
@@ -151,6 +151,11 @@
 
 import argparse
 import os
+
+# Avoid MKL/libgomp threading conflicts in some environments
+os.environ.setdefault("MKL_THREADING_LAYER", "GNU")
+os.environ.setdefault("MKL_SERVICE_FORCE_INTEL", "1")
+
 from datetime import datetime
 import numpy as np
 from tqdm import tqdm
@@ -271,7 +276,7 @@ def train():
 
             # Unscale 梯度以便裁剪 (可选但推荐)
             scaler.unscale_(optimizer)
-            torch.nn.utils.clip_grad_norm_(model.model_initializer.parameters(), 1.)
+            torch.nn.utils.clip_grad_norm_(model.model_initializer.parameters(), 1., error_if_nonfinite=False)
 
             # 这里的 step 和 update 替代原来的 optimizer.step()
             scaler.step(optimizer)
