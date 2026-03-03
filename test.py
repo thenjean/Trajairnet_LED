@@ -25,7 +25,7 @@
 #     parser.add_argument('--preds_step', type=int, default=10)
 #
 #     ##Network params
-#     parser.add_argument('--input_channels', type=int, default=3)
+#     parser.add_argument('--input_channels', type=int, default=5)
 #     parser.add_argument('--tcn_channel_size', type=int, default=256)
 #     parser.add_argument('--tcn_layers', type=int, default=2)
 #     parser.add_argument('--tcn_kernels', type=int, default=4)
@@ -46,7 +46,7 @@
 #     # diffusion model参数
 #     parser.add_argument('--k', type=int, default=4)
 #     parser.add_argument('--num_samples', type=int, default=20)
-#     parser.add_argument('--traj_dim', type=int, default=3)
+#     parser.add_argument('--traj_dim', type=int, default=5)
 #     parser.add_argument('--agent_num', type=int, default=3)
 #
 #     # RAG 参数
@@ -262,7 +262,7 @@ if __name__ == '__main__':
     parser.add_argument('--obs', type=int, default=11)
     parser.add_argument('--preds', type=int, default=120)
     parser.add_argument('--preds_step', type=int, default=10)
-    parser.add_argument('--input_channels', type=int, default=3)
+    parser.add_argument('--input_channels', type=int, default=5)
     parser.add_argument('--tcn_channel_size', type=int, default=256)
     parser.add_argument('--tcn_layers', type=int, default=2)
     parser.add_argument('--tcn_kernels', type=int, default=4)
@@ -281,7 +281,7 @@ if __name__ == '__main__':
     parser.add_argument('--model_dir', type=str, default="/saved_models/")
     parser.add_argument('--k', type=int, default=4)
     parser.add_argument('--num_samples', type=int, default=20)
-    parser.add_argument('--traj_dim', type=int, default=3)
+    parser.add_argument('--traj_dim', type=int, default=5)
     parser.add_argument('--agent_num', type=int, default=3)
     parser.add_argument('--k_retrieve', type=int, default=100)
     parser.add_argument('--n_clusters', type=int, default=3)

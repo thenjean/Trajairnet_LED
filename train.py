@@ -25,7 +25,7 @@
 #     parser.add_argument('--preds', type=int, default=120)
 #     parser.add_argument('--preds_step', type=int, default=10)
 #
-#     parser.add_argument('--input_channels', type=int, default=3)
+#     parser.add_argument('--input_channels', type=int, default=5)
 #     parser.add_argument('--tcn_channel_size', type=int, default=256)
 #     parser.add_argument('--tcn_layers', type=int, default=2)
 #     parser.add_argument('--tcn_kernels', type=int, default=4)
@@ -51,7 +51,7 @@
 #
 #     parser.add_argument('--k', type=int, default=4)
 #     parser.add_argument('--num_samples', type=int, default=15)
-#     parser.add_argument('--traj_dim', type=int, default=3)
+#     parser.add_argument('--traj_dim', type=int, default=5)
 #     parser.add_argument('--agent_num', type=int, default=3)
 #
 #     # RAG 参数
@@ -172,7 +172,7 @@ def train():
     parser.add_argument('--preds', type=int, default=120)
     parser.add_argument('--preds_step', type=int, default=10)
 
-    parser.add_argument('--input_channels', type=int, default=3)
+    parser.add_argument('--input_channels', type=int, default=5)
     parser.add_argument('--tcn_channel_size', type=int, default=256)
     parser.add_argument('--tcn_layers', type=int, default=2)
     parser.add_argument('--tcn_kernels', type=int, default=4)
@@ -197,7 +197,7 @@ def train():
 
     parser.add_argument('--k', type=int, default=4)
     parser.add_argument('--num_samples', type=int, default=15)
-    parser.add_argument('--traj_dim', type=int, default=3)
+    parser.add_argument('--traj_dim', type=int, default=5)
     parser.add_argument('--agent_num', type=int, default=3)
 
     # RAG 参数

@@ -102,7 +102,7 @@
 #                     ## 过滤不完整的轨迹序列
 #                     if pad_end - pad_front != self.seq_len:
 #                         continue
-#                     curr_agent_seq = np.transpose(curr_agent_seq[:, 2:])
+#                     curr_agent_seq = _build_agent_features(curr_agent_seq[:, 2:])
 #                     obs = curr_agent_seq[:,:obs_len]
 #                     pred = curr_agent_seq[:,obs_len+step-1::step]
 #                     curr_agent_seq = np.hstack((obs,pred))
@@ -242,8 +242,8 @@
 #
 #                 curr_seq_rel = np.zeros((len(agents_in_curr_seq), 3,
 #                                          self.seq_final_len))
-#                 curr_seq = np.zeros((len(agents_in_curr_seq), 3, self.seq_final_len))
-#                 curr_context = np.zeros((len(agents_in_curr_seq), 2, self.seq_final_len))
+#                 curr_seq = np.zeros((len(agents_in_curr_seq), 5, self.seq_final_len))
+#                 curr_context = np.zeros((len(agents_in_curr_seq), 1, self.seq_final_len))
 #                 num_agents_considered = 0
 #                 for _, agent_id in enumerate(agents_in_curr_seq):
 #                     curr_agent_seq = curr_seq_data[curr_seq_data[:, 1] ==
@@ -252,7 +252,7 @@
 #                     pad_end = frames.index(curr_agent_seq[-1, 0]) - idx + 1
 #                     if pad_end - pad_front != self.seq_len:
 #                         continue
-#                     curr_agent_seq = np.transpose(curr_agent_seq[:, 2:])
+#                     curr_agent_seq = _build_agent_features(curr_agent_seq[:, 2:])
 #                     obs = curr_agent_seq[:, :obs_len]
 #                     pred = curr_agent_seq[:, obs_len + step - 1::step]
 #                     curr_agent_seq = np.hstack((obs, pred))
@@ -269,8 +269,8 @@
 #                     if (curr_agent_seq.shape[1] != self.seq_final_len):
 #                         continue
 #
-#                     curr_seq[_idx, :, pad_front:pad_end] = curr_agent_seq[:3, :]
-#                     curr_seq_rel[_idx, :, pad_front:pad_end] = rel_curr_agent_seq[:3, :]
+#                     curr_seq[_idx, :, pad_front:pad_end] = curr_agent_seq[:5, :]
+#                     curr_seq_rel[_idx, :, pad_front:pad_end] = rel_curr_agent_seq[:5, :]
 #                     curr_context[_idx, :, pad_front:pad_end] = context
 #                     num_agents_considered += 1
 #
@@ -695,16 +695,16 @@
 #                 curr_seq_data = np.concatenate(frame_data[idx:idx + self.seq_len], axis=0)
 #                 agents_in_curr_seq = np.unique(curr_seq_data[:, 1])
 #                 self.max_agents_in_frame = max(self.max_agents_in_frame, len(agents_in_curr_seq))
-#                 curr_seq_rel = np.zeros((len(agents_in_curr_seq), 3, self.seq_final_len))
-#                 curr_seq = np.zeros((len(agents_in_curr_seq), 3, self.seq_final_len))
-#                 curr_context = np.zeros((len(agents_in_curr_seq), 2, self.seq_final_len))
+#                 curr_seq_rel = np.zeros((len(agents_in_curr_seq), 5, self.seq_final_len))
+#                 curr_seq = np.zeros((len(agents_in_curr_seq), 5, self.seq_final_len))
+#                 curr_context = np.zeros((len(agents_in_curr_seq), 1, self.seq_final_len))
 #                 num_agents_considered = 0
 #                 for _, agent_id in enumerate(agents_in_curr_seq):
 #                     curr_agent_seq = curr_seq_data[curr_seq_data[:, 1] == agent_id, :]
 #                     pad_front = frames.index(curr_agent_seq[0, 0]) - idx
 #                     pad_end = frames.index(curr_agent_seq[-1, 0]) - idx + 1
 #                     if pad_end - pad_front != self.seq_len: continue
-#                     curr_agent_seq = np.transpose(curr_agent_seq[:, 2:])
+#                     curr_agent_seq = _build_agent_features(curr_agent_seq[:, 2:])
 #                     obs = curr_agent_seq[:, :obs_len]
 #                     pred = curr_agent_seq[:, obs_len + step - 1::step]
 #                     curr_agent_seq = np.hstack((obs, pred))
@@ -713,8 +713,8 @@
 #                     rel_curr_agent_seq[:, 1:] = curr_agent_seq[:, 1:] - curr_agent_seq[:, :-1]
 #                     _idx = num_agents_considered
 #                     if (curr_agent_seq.shape[1] != self.seq_final_len): continue
-#                     curr_seq[_idx, :, pad_front:pad_end] = curr_agent_seq[:3, :]
-#                     curr_seq_rel[_idx, :, pad_front:pad_end] = rel_curr_agent_seq[:3, :]
+#                     curr_seq[_idx, :, pad_front:pad_end] = curr_agent_seq[:5, :]
+#                     curr_seq_rel[_idx, :, pad_front:pad_end] = rel_curr_agent_seq[:5, :]
 #                     curr_context[_idx, :, pad_front:pad_end] = context
 #                     num_agents_considered += 1
 #
@@ -810,17 +810,17 @@
 #             for idx in range(0, num_sequences * self.skip + 1, skip):
 #                 curr_seq_data = np.concatenate(frame_data[idx:idx + self.seq_len], axis=0)
 #                 agents_in_curr_seq = np.unique(curr_seq_data[:, 1])
-#                 curr_seq = np.zeros((len(agents_in_curr_seq), 3, self.seq_final_len))
+#                 curr_seq = np.zeros((len(agents_in_curr_seq), 5, self.seq_final_len))
 #                 num_agents_considered = 0
 #                 for _, agent_id in enumerate(agents_in_curr_seq):
 #                     curr_agent_seq = curr_seq_data[curr_seq_data[:, 1] == agent_id, :]
 #                     pad_front = frames.index(curr_agent_seq[0, 0]) - idx
 #                     pad_end = frames.index(curr_agent_seq[-1, 0]) - idx + 1
 #                     if pad_end - pad_front != self.seq_len: continue
-#                     curr_agent_seq = np.transpose(curr_agent_seq[:, 2:])
+#                     curr_agent_seq = _build_agent_features(curr_agent_seq[:, 2:])
 #                     _idx = num_agents_considered
 #                     if (curr_agent_seq.shape[1] != self.seq_final_len): continue
-#                     curr_seq[_idx, :, pad_front:pad_end] = curr_agent_seq[:3, :]
+#                     curr_seq[_idx, :, pad_front:pad_end] = curr_agent_seq[:5, :]
 #                     num_agents_considered += 1
 #                 if num_agents_considered > min_agent:
 #                     seq_list.append(curr_seq[:num_agents_considered])
@@ -953,6 +953,43 @@ import uuid
 from model.Rag_embedder import TimeSeriesEmbedder
 
 
+def _utm_project(lon, lat):
+    """Project WGS84 lon/lat to UTM x/y (meters)."""
+    zone = int((lon + 180.0) / 6.0) + 1
+    south = lat < 0
+    epsg = 32700 + zone if south else 32600 + zone
+
+    spec = __import__('importlib').util.find_spec('pyproj')
+    if spec is None:
+        # Fallback: keep original coordinates when pyproj is unavailable.
+        return lon, lat
+
+    from pyproj import Transformer
+    transformer = Transformer.from_crs("EPSG:4326", f"EPSG:{epsg}", always_xy=True)
+    x, y = transformer.transform(lon, lat)
+    return x, y
+
+
+def _build_agent_features(raw_agent_seq):
+    """
+    raw_agent_seq columns: lon, lat, heading, speed, altitude, ...
+    output features: utm_x, utm_y, heading_sin, speed, altitude
+    """
+    agent = np.array(raw_agent_seq, dtype=np.float32)
+    lon = agent[:, 0]
+    lat = agent[:, 1]
+    heading = np.deg2rad(agent[:, 2])
+    speed = agent[:, 3]
+    altitude = agent[:, 4]
+
+    utm_xy = np.array([_utm_project(lo, la) for lo, la in zip(lon, lat)], dtype=np.float32)
+    utm_x = utm_xy[:, 0]
+    utm_y = utm_xy[:, 1]
+    heading_sin = np.sin(heading)
+    
+    return np.stack([utm_x, utm_y, heading_sin, speed, altitude], axis=0)
+
+
 class DotDict(dict):
     __getattr__ = dict.get
     __setattr__ = dict.__setitem__
@@ -1026,26 +1063,27 @@ class TrajectoryDataset(Dataset):
                 curr_seq_data = np.concatenate(frame_data[idx:idx + self.seq_len], axis=0)
                 agents_in_curr_seq = np.unique(curr_seq_data[:, 1])
                 self.max_agents_in_frame = max(self.max_agents_in_frame, len(agents_in_curr_seq))
-                curr_seq_rel = np.zeros((len(agents_in_curr_seq), 3, self.seq_final_len))
-                curr_seq = np.zeros((len(agents_in_curr_seq), 3, self.seq_final_len))
-                curr_context = np.zeros((len(agents_in_curr_seq), 2, self.seq_final_len))
+                curr_seq_rel = np.zeros((len(agents_in_curr_seq), 5, self.seq_final_len))
+                curr_seq = np.zeros((len(agents_in_curr_seq), 5, self.seq_final_len))
+                curr_context = np.zeros((len(agents_in_curr_seq), 1, self.seq_final_len))
                 num_agents_considered = 0
                 for _, agent_id in enumerate(agents_in_curr_seq):
                     curr_agent_seq = curr_seq_data[curr_seq_data[:, 1] == agent_id, :]
                     pad_front = frames.index(curr_agent_seq[0, 0]) - idx
                     pad_end = frames.index(curr_agent_seq[-1, 0]) - idx + 1
                     if pad_end - pad_front != self.seq_len: continue
-                    curr_agent_seq = np.transpose(curr_agent_seq[:, 2:])
+                    curr_agent_seq = curr_agent_seq[:, 2:]
+                    curr_agent_seq = _build_agent_features(curr_agent_seq)
                     obs = curr_agent_seq[:, :obs_len]
                     pred = curr_agent_seq[:, obs_len + step - 1::step]
                     curr_agent_seq = np.hstack((obs, pred))
-                    context = curr_agent_seq[-2:, :]
-                    rel_curr_agent_seq = np.zeros(curr_agent_seq.shape)
+                    context = np.zeros((1, curr_agent_seq.shape[1]), dtype=np.float32)
+                    rel_curr_agent_seq = np.zeros(curr_agent_seq.shape, dtype=np.float32)
                     rel_curr_agent_seq[:, 1:] = curr_agent_seq[:, 1:] - curr_agent_seq[:, :-1]
                     _idx = num_agents_considered
                     if (curr_agent_seq.shape[1] != self.seq_final_len): continue
-                    curr_seq[_idx, :, pad_front:pad_end] = curr_agent_seq[:3, :]
-                    curr_seq_rel[_idx, :, pad_front:pad_end] = rel_curr_agent_seq[:3, :]
+                    curr_seq[_idx, :, pad_front:pad_end] = curr_agent_seq[:5, :]
+                    curr_seq_rel[_idx, :, pad_front:pad_end] = rel_curr_agent_seq[:5, :]
                     curr_context[_idx, :, pad_front:pad_end] = context
                     num_agents_considered += 1
 
@@ -1168,7 +1206,7 @@ class TrajectoryDataset_RAG(Dataset):
                 curr_seq_data = np.concatenate(frame_data[idx:idx + self.seq_len], axis=0)
                 agents_in_curr_seq = np.unique(curr_seq_data[:, 1])
 
-                curr_seq = np.zeros((len(agents_in_curr_seq), 3, self.seq_final_len))
+                curr_seq = np.zeros((len(agents_in_curr_seq), 5, self.seq_final_len))
                 num_agents_considered = 0
                 for _, agent_id in enumerate(agents_in_curr_seq):
                     curr_agent_seq = curr_seq_data[curr_seq_data[:, 1] == agent_id, :]
@@ -1178,13 +1216,13 @@ class TrajectoryDataset_RAG(Dataset):
                     pad_end = frames.index(curr_agent_seq[-1, 0]) - idx + 1
                     if pad_end - pad_front != self.seq_len: continue
 
-                    curr_agent_seq = np.transpose(curr_agent_seq[:, 2:])
+                    curr_agent_seq = _build_agent_features(curr_agent_seq[:, 2:])
                     _idx = num_agents_considered
 
                     # 严格的形状过滤
                     if (curr_agent_seq.shape[1] != self.seq_final_len): continue
 
-                    curr_seq[_idx, :, pad_front:pad_end] = curr_agent_seq[:3, :]
+                    curr_seq[_idx, :, pad_front:pad_end] = curr_agent_seq[:5, :]
                     num_agents_considered += 1
 
                 if num_agents_considered > min_agent:
