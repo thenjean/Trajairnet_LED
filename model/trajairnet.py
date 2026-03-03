@@ -73,7 +73,7 @@
 #
 #         # LED Modules
 #         self.model = CoreDenoisingModel().cuda()
-#         self.model_initializer = InitializationModel(t_h=args.obs, d_h=3, t_f=n_classes, d_f=3, k_pred=20).cuda()
+#         self.model_initializer = InitializationModel(t_h=args.obs, d_h=input_size, t_f=n_classes, d_f=input_size, k_pred=20).cuda()
 #
 #         self.betas = self.make_beta_schedule(
 #             schedule='linear', n_timesteps=100,
@@ -87,7 +87,7 @@
 #         '''agent-map'''
 #         self.k_retrieve = getattr(args, 'k_retrieve', 20)
 #         self.n_clusters = getattr(args, 'n_clusters', 3)
-#         self.traj_dim = getattr(args, 'traj_dim', 3)
+#         self.traj_dim = getattr(args, 'traj_dim', input_size)
 #
 #         # Map Encoder 输入维度: 3条航线 * 12个点 * 3维 = 108
 #         self.map_input_dim = self.n_clusters * n_classes * self.traj_dim
@@ -388,7 +388,7 @@ class TrajAirNet(nn.Module):
 
         # LED Modules
         self.model = CoreDenoisingModel().cuda()
-        self.model_initializer = InitializationModel(t_h=args.obs, d_h=3, t_f=n_classes, d_f=3, k_pred=20).cuda()
+        self.model_initializer = InitializationModel(t_h=args.obs, d_h=input_size, t_f=n_classes, d_f=input_size, k_pred=20).cuda()
 
         self.betas = self.make_beta_schedule(
             schedule='linear', n_timesteps=100,
@@ -404,7 +404,7 @@ class TrajAirNet(nn.Module):
         # ============================================================
         self.k_retrieve = getattr(args, 'k_retrieve', 20)
         self.n_clusters = getattr(args, 'n_clusters', 3)
-        self.traj_dim = getattr(args, 'traj_dim', 3)
+        self.traj_dim = getattr(args, 'traj_dim', input_size)
 
         # Map Encoder 输入维度: 3条航线 * 12个点 * 3维 = 108
         self.map_input_dim = self.n_clusters * n_classes * self.traj_dim
@@ -453,7 +453,7 @@ class TrajAirNet(nn.Module):
         if route_priors is not None:
             # route_priors 来自 DataLoader: (B, N, 3, 12, 3) [相对坐标]
             # 提取当前位置 last_pos: (B, N, 1, 1, 3)
-            if x.shape[2] == 3:  # (B, N, 3, 11)
+            if x.shape[2] == self.traj_dim:  # (B, N, C, T)
                 # 转换为 (B, N, 11, 3) 取最后一个点
                 last_pos = x.permute(0, 1, 3, 2)[:, :, -1, :].unsqueeze(2).unsqueeze(2)
             else:
@@ -515,7 +515,7 @@ class TrajAirNet(nn.Module):
         agent_num = x.shape[1]
 
         if route_priors is not None:
-            if x.shape[2] == 3:
+            if x.shape[2] == self.traj_dim:
                 last_pos = x.permute(0, 1, 3, 2)[:, :, -1, :].unsqueeze(2).unsqueeze(2)
             else:
                 last_pos = x[:, :, -1, :].unsqueeze(2).unsqueeze(2)
